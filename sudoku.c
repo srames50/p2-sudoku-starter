@@ -14,8 +14,55 @@ typedef struct{
   bool *result;
 } ThreadData;
 
+void *checkRow(void *arg){
+  ThreadData *data = (ThreadData *)arg;
+  int **grid = data->grid;
+  int psize = data->psize;
+  int row = data->val;
+  for(int i = 1; i <= psize; i++){
+    if(missingInRow(grid, psize, row, i)){
+      *(data->result) = false;
+      pthread_exit(NULL);
+    }
+  }
+  *(data->result) = true;
+  pthread_exit(NULL);
+}
 
+void *checkCol(void *arg){
+  ThreadData *data = (ThreadData *)arg;
+  int **grid = data->grid;
+  int psize = data->psize;
+  int col = data->val;
+  for(int i = 1; i <= psize; i++){
+    if(missingInCol(grid, psize, col, i)){
+      *(data->result) = false;
+      pthread_exit(NULL);
+    }
+  }
+  *(data->result) = true;
+  pthread_exit(NULL);
+}
 
+void *checkBox(void *arg){
+  ThreadData *data = (ThreadData *)arg;
+  int **grid = data->grid;
+  int psize = data->psize;
+  int index = data->val;
+
+  int boxSize = sqrt(psize);
+  int startRow = (index - 1) / boxSize * boxSize + 1;
+  int startCol = (index - 1) % boxSize * boxSize + 1;
+
+  for (int i = 1; i <= psize; i++){
+    if (missingInBox(grid, psize, startRow, startCol, i)){
+      *(data->result) = false;
+      pthread_exit(NULL);
+    }
+  }
+  *(data->result) = true;
+  pthread_exit(NULL);
+}
 
 bool checkValid(int **grid, int psize){
   pthread_t threads[3 * psize];
@@ -80,7 +127,6 @@ void checkPuzzle(int psize, int **grid, bool *complete, bool *valid) {
           if(grid[row][col] != 0){
             edited = true;
           }
-
         }
       }
     }
