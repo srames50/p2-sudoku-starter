@@ -14,6 +14,50 @@ typedef struct{
   bool *result;
 } ThreadData;
 
+void getMissingNums(int **grid, int psize, int row, int col, int *missingNumbers, int *count){
+  int present[psize + 1];
+  for (int i = 0; i <= psize; i++){
+    present[i] = 0;
+  }
+
+  // Check row and column
+  for (int i = 1; i <= psize; i++){
+    present[grid[row][i]] = 1;
+    present[grid[i][col]] = 1;
+  }
+
+  // Check box
+  int boxSize = sqrt(psize);
+  int startRow = (row - 1) / boxSize * boxSize + 1;
+  int startCol = (col - 1) / boxSize * boxSize + 1;
+  for (int i = 0; i < boxSize; i++){
+    for (int j = 0; j < boxSize; j++){
+      present[grid[startRow + i][startCol + j]] = 1;
+    }
+  }
+
+  *count = 0;
+  for (int i = 1; i <= psize; i++){
+    if (!present[i]){
+      missingNumbers[*count] = i;
+      (*count)++;
+    }
+  }
+}
+
+
+void fill(int psize, int **grid, int row, int col){
+  int missingNumbers[psize];
+  int count;
+
+  getMissingNums(grid, psize, row, col, missingNumbers, &count);
+
+  // If only one is missing fill it
+  if(count == 1){
+    grid[row][col] = missingNumbers[0];
+  }
+}
+
 bool missingInRow(int **grid, int psize, int row, int val){
   for (int col = 1; col <= psize; col++){
     if (grid[row][col] == val){
@@ -23,7 +67,7 @@ bool missingInRow(int **grid, int psize, int row, int val){
   return true;
 }
 
-bool missingInColumn(int **grid, int psize, int col, int val){
+bool missingInCol(int **grid, int psize, int col, int val){
   for (int row = 1; row <= psize; row++){
     if (grid[row][col] == val){
       return false;
@@ -152,7 +196,7 @@ void checkPuzzle(int psize, int **grid, bool *complete, bool *valid) {
 
         if (grid[row][col] == 0) {
           *complete = false;
-          fillCell(psize, grid, row, col);
+          fill(psize, grid, row, col);
 
           if(grid[row][col] != 0){
             edited = true;
