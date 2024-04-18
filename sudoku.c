@@ -7,6 +7,16 @@
 #include <stdlib.h>
 #include <math.h>
 
+typedef struct{
+  int **grid;
+  int psize;
+  int val; // Can represent either row, col, or box number
+  bool *result;
+} ThreadData;
+
+
+
+
 // takes puzzle size and grid[][] representing sudoku puzzle
 // and tow booleans to be assigned: complete and valid.
 // row-0 and column-0 is ignored for convenience, so a 9x9 puzzle
@@ -15,9 +25,33 @@
 // If complete, a puzzle is valid if all rows/columns/boxes have numbers from 1
 // to psize For incomplete puzzles, we cannot say anything about validity
 void checkPuzzle(int psize, int **grid, bool *complete, bool *valid) {
-  // YOUR CODE GOES HERE and in HELPER FUNCTIONS
-  *valid = true;
-  *complete = true;
+  bool edited;
+  *complete = true; //assuming puzzle is complete by default
+  edited = true;
+  // first we check if puzzle is complete then we check if it is valid
+  while(edited){ // using edited as a flag to see if we have to check through again
+
+    edited = false;
+    for (int row = 1; row <= psize; row++) {
+      for (int col = 1; col <= psize; col++) {
+
+        if (grid[row][col] == 0) {
+          *complete = false;
+          fillCell(psize, grid, row, col);
+
+          if(grid[row][col] != 0){
+            edited = true;
+          }
+
+        }
+      }
+    }
+  }
+  // puzzle can only be valid if complete
+  if(*complete){
+    *valid = checkValid(grid, psize);
+  }
+  
 }
 
 // takes filename and pointer to grid[][]
