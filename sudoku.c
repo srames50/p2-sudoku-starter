@@ -14,6 +14,36 @@ typedef struct{
   bool *result;
 } ThreadData;
 
+bool missingInRow(int **grid, int psize, int row, int val){
+  for (int col = 1; col <= psize; col++){
+    if (grid[row][col] == val){
+      return false;
+    }
+  }
+  return true;
+}
+
+bool missingInColumn(int **grid, int psize, int col, int val){
+  for (int row = 1; row <= psize; row++){
+    if (grid[row][col] == val){
+      return false;
+    }
+  }
+  return true;
+}
+
+bool missingInBox(int **grid, int psize, int startRow, int startCol, int val){
+  int boxSize = sqrt(psize);
+  for (int i = 0; i < boxSize; i++){
+    for (int j = 0; j < boxSize; j++){
+      if (grid[startRow + i][startCol + j] == val){
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
 void *checkRow(void *arg){
   ThreadData *data = (ThreadData *)arg;
   int **grid = data->grid;
