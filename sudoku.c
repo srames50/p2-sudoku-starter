@@ -17,6 +17,44 @@ typedef struct{
 
 
 
+bool checkValid(int **grid, int psize){
+  pthread_t threads[3 * psize];
+  bool results[3 * psize];
+  ThreadData data[3 * psize];
+
+  // for each in psize launch a thread for col, row and box
+  for (int i = 1; i <= psize; i++){
+    data[i - 1].grid = grid;
+    data[i - 1].psize = psize;
+    data[i - 1].val = i;
+    data[i - 1].result = &results[i - 1];
+    pthread_create(&threads[i - 1], NULL, checkRow, &data[i - 1]);
+
+    data[i + psize - 1].grid = grid;
+    data[i + psize - 1].psize = psize;
+    data[i + psize - 1].val = i;
+    data[i + psize - 1].result = &results[i + psize - 1];
+    pthread_create(&threads[i + psize - 1], NULL, checkCol, &data[i + psize - 1]);
+
+    data[i + 2 * psize - 1].grid = grid;
+    data[i + 2 * psize - 1].psize = psize;
+    data[i + 2 * psize - 1].val = i;
+    data[i + 2 * psize - 1].result = &results[i + 2 * psize - 1];
+    pthread_create(&threads[i + 2 * psize - 1], NULL, checkBox, &data[i + 2 * psize - 1]);
+
+  }
+
+  // Join the threads
+  for(int i = 0; i < 3 * psize; i++){
+    pthread_join(threads[i], NULL);
+    if(!results[i]){
+      return false;
+    }
+  }
+  return true;
+}
+
+
 // takes puzzle size and grid[][] representing sudoku puzzle
 // and tow booleans to be assigned: complete and valid.
 // row-0 and column-0 is ignored for convenience, so a 9x9 puzzle
