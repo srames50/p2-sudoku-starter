@@ -1,4 +1,7 @@
 // Sudoku puzzle verifier and solver
+// compile: gcc -Wall -Wextra -pthread -lm -std=c99 sudoku.c -o sudoku
+// run: ./sudoku puzzle2-fill-valid.txt
+// or you can just do ./runit.sh 
 
 #include <assert.h>
 #include <pthread.h>
